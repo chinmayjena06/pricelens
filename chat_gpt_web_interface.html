@@ -1,0 +1,64 @@
+<!-- chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LKC Price Lens GPT</title>
+  <style>
+    body { font-family: Arial; background: #f0f0f0; padding: 20px; }
+    #chatbox { width: 100%; max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+    .message { margin-bottom: 15px; white-space: pre-wrap; }
+    .user { color: blue; }
+    .assistant { color: green; }
+    textarea { width: 100%; height: 80px; margin-top: 10px; }
+    button { padding: 10px 20px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div id="chatbox">
+    <h2>ChatGPT Interface</h2>
+    <div id="chatlog"></div>
+    <textarea id="userInput" placeholder="Type your message..."></textarea><br>
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const apiKey = "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"; // Replace with your actual API key
+    const chatLog = document.getElementById("chatlog");
+
+    async function sendMessage() {
+      const userInput = document.getElementById("userInput").value;
+      if (!userInput.trim()) return;
+
+      // Display user message
+      chatLog.innerHTML += `<div class='message user'><strong>You:</strong> ${userInput}</div>`;
+      document.getElementById("userInput").value = "";
+
+      // Send message to OpenAI
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo-0125", // or "gpt-3.5-turbo" for lower cost
+          messages: [
+            { role: "system", content: "You are a helpful assistant." },
+            { role: "user", content: userInput }
+          ],
+          temperature: 0.7
+        })
+      });
+
+      const data = await response.json();
+
+      // Display assistant response with line breaks
+      const reply = data.choices?.[0]?.message?.content || "No response";
+      const formattedReply = reply.replace(/\n/g, "<br>");
+      chatLog.innerHTML += `<div class='message assistant'><strong>ChatGPT:</strong> ${formattedReply}</div>`;
+    }
+  </script>
+</body>
+</html>
